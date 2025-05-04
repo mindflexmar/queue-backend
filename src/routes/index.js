@@ -1,9 +1,7 @@
-const requestRoutes = require('./request.routes');
-const citizenRoutes = require('./citizen.routes');
-
-async function routes(fastify, options) {
-  fastify.register(requestRoutes, { prefix: '/requests' });
-  fastify.register(citizenRoutes, { prefix: '/citizens' });
-}
-
-module.exports = routes;
+module.exports = async (fastify) => {
+    await fastify.register(require('./citizen.routes'), { prefix: '/citizens' });
+    await fastify.register(require('./request.routes'), { prefix: '/requests' });
+    await fastify.register(require('./specialist.routes'), { prefix: '/specialists' });
+    await fastify.register(require('./specialization.routes'), { prefix: '/specializations' });
+  };
+  
