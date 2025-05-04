@@ -1,0 +1,225 @@
+openapi: 3.0.3
+info:
+  title: Queue API
+  description: API для системи електронної черги
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000/api/v1
+
+tags:
+  - name: Запити
+    description: Операції з заявками
+  - name: Громадяни
+    description: Управління громадянами
+  - name: Фахівці
+    description: Робота з фахівцями
+  - name: Спеціалізації
+    description: Управління спеціалізаціями
+
+components:
+  schemas:
+    Citizen:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        firstname:
+          type: string
+          example: "Олена"
+        lastname:
+          type: string
+          example: "Іваненко"
+      required: [id, firstname, lastname]
+
+    Specialist:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Ганна Бондаренко"
+        position:
+          type: string
+          example: "Фахівець відділу субсидій"
+      required: [id, name]
+
+    Specialization:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 101
+        name:
+          type: string
+          example: "Соціальний працівник"
+      required: [code, name]
+
+    Request:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        creation_date:
+          type: string
+          format: date-time
+          example: "2025-05-03T12:00:00Z"
+        daily_number:
+          type: integer
+          example: 1
+        description:
+          type: string
+          example: "Питання субсидії на житло"
+        status:
+          type: string
+          enum: ["очікує", "в обробці", "завершено", "відхилено"]
+          example: "очікує"
+        citizen_id:
+          type: integer
+          example: 1
+        specialist_id:
+          type: integer
+          example: 1
+        specialization_code:
+          type: integer
+          example: 104
+      required: [id, daily_number, description, status]
+
+paths:
+  /requests:
+    get:
+      tags: [Запити]
+      summary: Отримати всі заявки
+      responses:
+        '200':
+          description: Список заявок
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Request'
+              example:
+                - id: 1
+                  creation_date: "2025-05-03T12:00:00Z"
+                  daily_number: 1
+                  description: "Питання субсидії на житло"
+                  status: "очікує"
+                  citizen_id: 1
+                  specialist_id: 1
+                  specialization_code: 104
+                - id: 2
+                  creation_date: "2025-05-03T12:15:00Z"
+                  daily_number: 2
+                  description: "Оформлення пенсії"
+                  status: "в обробці"
+                  citizen_id: 2
+                  specialist_id: 2
+                  specialization_code: 102
+
+    post:
+      tags: [Запити]
+      summary: Створити нову заявку
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Request'
+            example:
+              daily_number: 11
+              description: "Нова заявка"
+              citizen_id: 1
+              specialist_id: 1
+              specialization_code: 104
+      responses:
+        '201':
+          description: Заявка успішно створена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Request'
+
+  /requests/{id}:
+    get:
+      tags: [Запити]
+      summary: Отримати заявку по ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Деталі заявки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Request'
+        '404':
+          description: Заявка не знайдена
+
+  /citizens:
+    get:
+      tags: [Громадяни]
+      summary: Отримати всіх громадян
+      responses:
+        '200':
+          description: Список громадян
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Citizen'
+              example:
+                - id: 1
+                  firstname: "Олена"
+                  lastname: "Іваненко"
+                - id: 2
+                  firstname: "Микола"
+                  lastname: "Петренко"
+
+  /specialists:
+    get:
+      tags: [Фахівці]
+      summary: Отримати всіх фахівців
+      responses:
+        '200':
+          description: Список фахівців
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Specialist'
+              example:
+                - id: 1
+                  name: "Ганна Бондаренко"
+                  position: "Фахівець відділу субсидій"
+                - id: 2
+                  name: "Олексій Романюк"
+                  position: "Консультант ПФУ"
+
+  /specializations:
+    get:
+      tags: [Спеціалізації]
+      summary: Отримати всі спеціалізації
+      responses:
+        '200':
+          description: Список спеціалізацій
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Specialization'
+              example:
+                - code: 101
+                  name: "Соціальний працівник"
+                - code: 102
+                  name: "Пенсійний консультант"

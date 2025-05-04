@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model citizen {
+  id        Int       @id @default(autoincrement())
+  firstname String?   @db.VarChar(50)
+  lastname  String?   @db.VarChar(50)
+  request   request[]
+}
+
+model request {
+  id                  Int             @id @default(autoincrement())
+  creation_date       DateTime?       @db.Timestamp(6)
+  daily_number        Int
+  description         String
+  citizen_id          Int?
+  specialist_id       Int?
+  specialization_code Int?
+  status              String?         @default("очікує") @db.VarChar(20)
+  citizen             citizen?        @relation(fields: [citizen_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  specialist          specialist?     @relation(fields: [specialist_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  specialization      specialization? @relation(fields: [specialization_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model specialist {
+  id                       Int                        @id @default(autoincrement())
+  name                     String?                    @db.VarChar(50)
+  position                 String?                    @db.VarChar(100)
+  request                  request[]
+  specialistspecialization specialistspecialization[]
+}
+
+model specialistspecialization {
+  specialist_id       Int
+  specialization_code Int
+  specialist          specialist     @relation(fields: [specialist_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  specialization      specialization @relation(fields: [specialization_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([specialist_id, specialization_code])
+}
+
+model specialization {
+  code                     Int                        @id
+  name                     String?                    @db.VarChar(100)
+  request                  request[]
+  specialistspecialization specialistspecialization[]
+}
